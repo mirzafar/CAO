@@ -1,0 +1,93 @@
+{% extends 'base.html'%}
+{% block content %}
+        {% if user.is_authenticated%}
+        <section style="padding-left:45px;">
+            <div class="container">
+                <div class="row text-center">
+                    <h3>Добавить накладной</h3>
+                </div>
+                <div class="row" style="width: 500px;">
+                    <form action="/overhead/overheadAdd/{{item.id}}/" method="POST" id="form2">
+                        {% csrf_token %}
+                        {% if errors %}
+                        <div class="box">
+                            <div class="row">
+                                {% for er in errors %}
+                                <h4 style="color: red">{{ er }}</h4>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+                        <div class="box">
+                            <div class="input-group mb-3">
+                                <label class="input-group-text" for="fromcity">От куда</label>
+                                <select class="form-select" id="fromcity" name="from_city">
+                                    <option value="0" selected>Выберите</option>
+                                    {% for cat in citys %}
+                                    <option value="{{cat.id}}">{{cat.title}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="box">
+                            <div class="input-group mb-3">
+                                <label class="input-group-text" for="tocity">Куда</label>
+                                <select class="form-select" id="tocity" name="to_city">
+                                    <option value="0" selected>Выберите</option>
+                                    {% for cat in citys %}
+                                    <option value="{{cat.id}}">{{cat.title}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="box">
+                            <div class="input-group mb-3" style="width: 300px">
+                                <span class="input-group-text" for="day">Количества день</span>
+                                <input type="number" value="0" class="form-control" placeholder="..." id="day" name="day" min="0">
+                            </div>
+                        </div>
+                        <div class="box">
+                            <div class="input-group mb-3" style="width: 300px">
+                                <span class="input-group-text" for="sum">Сумма</span>
+                                <input type="number" value="0" class="form-control" placeholder="..." id="sum" min="0" step="0.01" name="sum">
+                            </div>
+                        </div>
+                        <div class="box">
+                            <div class="input-group mb-3" style="width: 300px">
+                                <span class="input-group-text" for="date">Дата</span>
+                                <input type="date" class="form-control" id="date" name="date">
+                            </div>
+                        </div>
+                        <div class="box">
+                            <div class="input-group mb-3" style="width: 300px">
+                                <span class="input-group-text" for="dollar">Курс доллар</span>
+                                <input name="rate_dollar" value="0" type="number" class="form-control" placeholder="..." id="dollar" min="0" step="0.01">
+                            </div>
+                        </div>
+                        <div class="col-12" style="text-align: right;">
+                            <input type="hidden" value="ADD" name="action">
+                            <button class="btn" style="background: #dc3545d6;"><a href="/" style="color:white; text-decoration: none;">Отмена</a></button>
+                            <button class="btn btn-primary" type="submit">Сохранить</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </section>
+        {% else %}
+            <div class="page-wrap d-flex flex-row align-items-center">
+                <div class="container">
+                    <div class="row justify-content-center">
+                        <div class="col-md-12 text-center">
+                            <span class="display-1 d-block">404</span>
+                            <div class="mb-4 lead" style="color: red">The page you are looking for was not found.</div>
+                            <a href="/" class="btn btn-link">Перейти на главную страницу</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+{% endblock %}
+{% block script %}
+<script src="/media/js/jquery.min.js"></script>
+<script src="/media/js/js-overheadAdd.js"></script>
+{% endblock %}

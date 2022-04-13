@@ -1,0 +1,218 @@
+{% extends 'base.html'%}
+{% block style %}
+<style>
+    input:invalid{
+        border: 2px solid red;
+        border-radius: 6px;
+    }
+    .js-ctn-qps img{
+        width: 20px;
+        height: 20px;
+    }
+</style>
+{% endblock %}
+{% block content %}
+{% if user.is_authenticated or active_user %}
+    <section class="pb-4" id="section1" style="padding-left:45px;">
+        <div class="container">
+            <div class="row text-center">
+                <h3>Накладной</h3>
+            </div>
+            <div class="row" style="width: 500px;">
+                <form action="/overhead/{{overheads.id}}/" method="POST">
+                    {% csrf_token %}
+                    <div class="box">
+                        <div class="input-group mb-3">
+                            <label class="input-group-text" for="fromcity">От куда</label>
+                            <select class="form-select" id="fromcity" name="from_city" {% if active_user %} disabled {% endif %}>
+                                <option value="0">Выберите</option>
+                                {% for city in citys %}
+                                <option value="{{city.id}}" {% if city.id == overheads.from_city.id %}selected{% endif %}>{{city.title}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="box">
+                        <div class="input-group mb-3">
+                            <label class="input-group-text" for="tocity">Куда</label>
+                            <select class="form-select" id="tocity" name="to_city" {% if active_user %} disabled {% endif %}>
+                                <option value="0">Выберите</option>
+                                {% for city in citys %}
+                                <option value="{{city.id}}" {% if city.id == overheads.to_city.id %}selected{% endif %}>{{city.title}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="box">
+                        <div class="input-group mb-3" style="width: 300px">
+                            <span class="input-group-text" for="day">Количества день</span>
+                            <input class="form-control" name="day" type="number" placeholder="day" value="{{overheads.day}}" id="day" {% if active_user %} disabled {% endif %}>
+                        </div>
+                    </div>
+                    <div class="box">
+                        <div class="input-group mb-3" style="width: 300px">
+                            <span class="input-group-text" for="sum">Сумма</span>
+                            <input class="form-control" name="sum" type="number" step="0.01" placeholder="sum" value="{{overheads.sum}}" id="sum" {% if active_user %} disabled {% endif %}>
+                        </div>
+                    </div>
+                    <div class="box">
+                        <div class="input-group mb-3" style="width: 300px">
+                            <span class="input-group-text" for="date">Дата</span>
+                            <input class="form-control" id="date" name="date" id="date" type="date" value="{{overheads.date.year}}-{% if overheads.date.month < 9 %}0{% endif %}{{overheads.date.month}}-{% if overheads.date.day < 9 %}0{% endif %}{{overheads.date.day}}" {% if active_user %} disabled {% endif %}>
+                        </div>
+                    </div>
+                    <div class="box">
+                        <div class="input-group mb-3" style="width: 300px">
+                            <span class="input-group-text" for="dollar">Курс доллар</span>
+                            <input class="form-control" id="dollar" name="rate_dollar" id="dollar" type="number" step="0.01" placeholder="rate dollar" value="{{overheads.rate_dollar}}" {% if active_user %} disabled {% endif %}>
+                        </div>
+                    </div>
+                    <div class="box">
+                        <div class="input-group mb-3" style="width: 300px">
+                            <span class="input-group-text" for="state">Статус</span>
+                            <input class="form-control"  name="state" id="state" type="number" step="1" min="-1" max="3" placeholder="state" value="{{overheads.state}}" {% if active_user %} disabled {% endif %}>
+                        </div>
+                    </div>
+                    <div class="box">
+                        <div class="input-group mb-3" style="width: 300px">
+                            <span class="input-group-text">Пользователь </span>
+                            <input class="form-control" value="{{overheads.user.first_name}} {{overheads.user.last_name}} {{overheads.user.middle_name}}" disabled>
+                        </div>
+                    </div>
+                    {% if not active_user %}
+                    <div class="col-12" style="text-align: right;">
+                        <input type="hidden" value="EDIT" name="action">
+                        <button class="btn btn-primary" type="submit">Изменить</button>
+                    </div>
+                    {% endif %}
+                </form>
+            </div>
+        </div>
+    </section>
+
+
+<section class="pb-4" id="section2">
+    <div class="container">
+        <div class="row text-center">
+            <div class="row text-center">
+                <h2>Все накладные расходы</h2>
+            </div>
+            <div class="bg-white border rounded-5">
+                 <section class="w-100 p-4 text-center">
+                     <table class="table table-hover">
+                        <tr>
+                            <th>Накладной</th>
+                            <th>Расход</th>
+                            <th>Цена</th>
+                            <th>Штук</th>
+                            <th>Сумма</th>
+                            {% if not active_user %}
+                            <th>action</th>
+                            {% endif %}
+                        </tr>
+                        {% for cc in overhead_charges %}
+                        <tr>
+                            <td>{{cc.overhead.from_city.title}} - {{cc.overhead.to_city.title}}</td>
+                            <td>{{cc.expenses.title}}</td>
+                            <td>{{cc.cost}}</td>
+                            <td>{{cc.emount}}</td>
+                            <td>{{cc.sum}}</td>
+                            {% if not active_user %}
+                            <td>
+                                <form action="/overhead/{{overheads.id}}/" method="POST">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="oc_id" value="{{cc.id}}">
+                                    <input type="hidden" name="action" value="del_oc">
+                                    <button type="submit" class="btn btn-outline-danger">Удалить</button>
+                                </form>
+                            </td>
+                            {% endif %}
+                        </tr>
+                        {% endfor %}
+                        <tr>
+                            <td colspan="4"></td>
+                            <td colspan="2">Общая сумма : {{total}}</td>
+                        </tr>
+                     </table>
+                </section>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% if not active_user %}
+<section class="pb-4" id="section3">
+        <div class="container js-cnt-show" style="margin-bottom: 15px">
+            <div class="row" style="border-bottom: 2px solid #ecedef">
+                <div style="width: 90%; display: inline-block; cursor: pointer"><h5>Добавить накладной расход</h5></div>
+                <div class="js-ctn-qps" style="display: inline-block; width: 2%; color: #757575; cursor: pointer"><img src="/media/images/angle-down-solid.svg"></div>
+            </div>
+        </div>
+        <div class="container js-cnt">
+            {% if errors %}
+            <div class="row text-center">
+                {% for er in errors %}
+                <h3>{{er}}</h3>
+                {% endfor %}
+            </div>
+            {% endif %}
+            <div class="row" style="width: 500px;">
+                <form action="/overhead/{{overheads.id}}/" method="POST" id="form1">
+                    {% csrf_token %}
+                    <div class="box">
+                        <div class="input-group mb-3">
+                            <label class="input-group-text" for="expen">Накладной</label>
+                            <select class="js-errr form-select" id="expen" name="expenses">
+                                <option value="0">Выберите</option>
+                                {% for expenses in expensess %}
+                                <option value="{{expenses.id}}">{{expenses.title}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="box">
+                        <div class="input-group mb-3" style="width: 300px">
+                            <span class="input-group-text" for="emout">Количества день</span>
+                            <input class="js-errr form-control" type="number" name="emount" id="emout" min="0" value="0">
+                        </div>
+                    </div>
+                    <div class="box">
+                        <div class="input-group mb-3" style="width: 300px">
+                            <span class="input-group-text" for="cost">Цена</span>
+                            <input class="js-errr form-control" name="cost" type="number" step="0.01" value="0" placeholder="Цена" min="0" id="cost" >
+                        </div>
+                    </div>
+                    <div class="box">
+                        <div class="input-group mb-3" style="width: 300px">
+                            <span class="input-group-text" for="tot">Сумма</span>
+                            <input class="js-errr form-control" name="sum" type="number" value="0" step="0.01" placeholder="Сумма" min="0" id="tot" >
+                        </div>
+                    </div>
+                    <div class="col-12" style="text-align: right;">
+                        <input type="hidden" name="action" value="add_exp">
+                        <button class="btn btn-primary" type="submit">Сохранить</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+{% endif %}
+
+{% else %}
+    <div class="page-wrap d-flex flex-row align-items-center">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-md-12 text-center">
+                    <span class="display-1 d-block">404</span>
+                    <div class="mb-4 lead" style="color: red">The page you are looking for was not found.</div>
+                    <a href="/" class="btn btn-link">Перейти на главную страницу</a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endif %}
+{% endblock %}
+{% block script %}
+<script src="/media/js/jquery.min.js"></script>
+<script src="/media/js/js-overheadAdd.js"></script>
+{% endblock %}

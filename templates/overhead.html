@@ -1,0 +1,104 @@
+{% extends 'base.html'%}
+{% block style %}
+<style>
+    .ero{
+        border: 2px solid red;
+        border-radius: 5px;
+    }
+</style>
+{% endblock %}
+{% block content %}
+{% if user.is_authenticated or active_user %}
+<section class="pb-4" id="section1" style="min-height: 600px;">
+    <div class="container">
+        <div class="row text-center">
+            <div class="row text-center">
+                <h2>Все накладные расходы</h2>
+            </div>
+            <div class="row text-center" style="margin-bottom: 15px">
+                <form action="/overhead/" method="post" id="search1">
+                    {% csrf_token %}
+                    <div class="input-group mb-3" style="width: 500px">
+                        <span class="input-group-text">С : </span>
+                        <input class="form-control" required name="day1" id="day1" {% if day1 %} value="{{day1}}" {% endif %} type="number" step="1" placeholder="day" min="1" max="31" >
+                        <input class="form-control" required name="month1" id="month1" {% if month1 %} value="{{month1}}" {% endif %} type="number" step="1" placeholder="month" min="1" max="12" >
+                        <select class="form-select" required name="year1" id="year1">
+                            <option value="0">Выберите</option>
+                            {% for yr in yr %}
+                            <option value="{{yr}}" {% if yr == year1 %} selected {% endif %} >{{yr}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="input-group mb-3" style="width: 500px">
+                        <span class="input-group-text">По : </span>
+                        <input class="form-control" required name="day2" id="day2" {% if day2 %} value="{{day2}}" {% endif %} type="number" step="1" placeholder="day" min="1" max="31" >
+                        <input class="form-control" required name="month2" id="month2" {% if month2 %} value="{{month2}}" {% endif %} type="number" step="1" placeholder="month" min="1" max="12" >
+                        <select class="form-select" name="year2" id="year2">
+                            <option value="0">Выберите</option>
+                            {% for yr in yr %}
+                            <option value="{{yr}}" {% if yr == year2 %} selected {% endif %}>{{yr}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-12" style="text-align: right; width: 500px">
+                        <input type="hidden" value="srch" name="action">
+                        <input type="hidden" value="{{oc_user_id}}" name="ocuser_id">
+                        <button class="btn btn-primary" type="submit">Искать</button>
+                    </div>
+                </form>
+            </div>
+            <div class="bg-white border rounded-5">
+                 <section class="w-100 p-4 text-center">
+                     <table class="table table-hover">
+                        <tr>
+                            <th>User</th>
+                            <th>Date</th>
+                            <th>to city</th>
+                            <th></th>
+                            {% if user.is_authenticated %}
+                            <th></th>
+                            {% endif %}
+                        </tr>
+                        {% for overhead in overheads %}
+                        <tr>
+                            <td>{{overhead.user.first_name}} {{overhead.user.last_name}} </td>
+                            <td>{{overhead.date}}</td>
+                            <td>{{overhead.to_city}}</td>
+                            <td><a title="Посмотреть" href="{{overhead.id}}"><img style="width: 20px" src="/media/images/eye-solid.svg"></a></td>
+                            {% if not active_user %}
+                            <td>
+                                <form action="/overhead/" method="POST">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="del_overhead">
+                                    <input type="hidden" name="id" value="{{overhead.id}}">
+                                    <input type="hidden" name="dd" value="{{oc_user_id}}">
+                                    <button type="submit" class="btn btn-outline-danger">Удалить</button>
+                                </form>
+                            </td>
+                            {% endif %}
+                        </tr>
+                        {% endfor %}
+                     </table>
+                </section>
+            </div>
+        </div>
+    </div>
+</section >
+{% else %}
+    <div class="page-wrap d-flex flex-row align-items-center">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-md-12 text-center">
+                    <div class="mb-4 lead" style="color: red"><h3>Пройдите регистрацию или авторизируйтесь</h3></div>
+                    <button type="button" class="btn btn-primary btn-lg"><a href="/login" style="color: white; text-decoration: none">Login</a></button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endif %}
+{% endblock %}
+{% block script %}
+<script src="/media/js/jquery.min.js"></script>
+<script src="/media/js/js-overheadAdd.js"></script>
+<script src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.11.1/jquery.validate.min.js"></script>
+{% endblock %}
